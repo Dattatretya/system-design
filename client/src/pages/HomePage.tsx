@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import type { HealthResponse } from "../types/heath.types";
 import { getHealth } from "../services/health.service";
 import UploadFiles from "../components/UploadFiles";
+import FileList from "../components/FileList";
 
 function HomePage(){
 
@@ -22,6 +23,9 @@ function HomePage(){
                 {JSON.stringify(health, null, 2)}
             </pre>
             <UploadFiles/>
+            <br></br>
+            <p>Break</p>
+            <FileList/>
         </div>
     )
 }

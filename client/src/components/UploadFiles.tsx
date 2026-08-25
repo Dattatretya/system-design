@@ -1,4 +1,5 @@
-import { useState } from "react"
+import { useState } from "react";
+import { uploadFileDIrectlyToS3, UplopadFile } from "../services/upload.service";
 
 function UploadFiles(){
     const [selectedFile, setSelectedFile] = useState<File | null> (null)
@@ -8,8 +9,23 @@ function UploadFiles(){
 
         if (!file) return;
 
+        console.log(file)
+
         setSelectedFile(file);
+
+        const stream = file.stream();
+
+        console.log(stream);
     }
+
+    const handleUpload = async () => {
+        if (!selectedFile) return
+
+        const response = await uploadFileDIrectlyToS3(selectedFile)
+
+        console.log("Upload response", response)
+    }
+
     return (
         <div>
             <input
@@ -24,7 +40,10 @@ function UploadFiles(){
                     <p>{selectedFile.type}</p>
                     <p>{selectedFile.size} bytes</p>
                 </div>
+                
             )}
+
+            <button onClick={handleUpload}>Upload</button>
 
         </div>
     )
