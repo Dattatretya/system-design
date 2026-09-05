@@ -8,7 +8,7 @@ export async function createRefreshToken(
 ){
     const result = await db.query(
         `
-        INSERT INTO refresh_tokens(id, user_id, token_hash, expired_at)
+        INSERT INTO refresh_tokens(id, user_id, token_hash, expires_at)
         VALUES ($1, $2, $3, $4)
         RETURNING id, 
         user_id as "userId",
@@ -25,13 +25,14 @@ export async function createRefreshToken(
     return result.rows[0];
 }
 
-export async function getRefreshTokenByToken(tokenHash: string){
+export async function getRefreshTokenByTokenHash(tokenHash: string){
     const result = await db.query(`
         SELECT
             id,
             user_id AS "userId",
             token_hash AS "tokenHash",
             expires_at AS "expiresAt",
+            revoked_at AS "revokedAt",
             created_at AS "createdAt"
         FROM refresh_tokens
         WHERE token_hash = $1
@@ -45,21 +46,21 @@ export async function getRefreshTokenByToken(tokenHash: string){
     return result.rows[0]
 }
 
-export async function getRefreshTokensByUserId(userId: string) {
+// export async function getRefreshTokensByUserId(userId: string) {
 
-    const result = await db.query(
-        `
-        SELECT
-            id,
-            user_id AS "userId",
-            token_hash AS "tokenHash",
-            expires_at AS "expiresAt",
-            created_at AS "createdAt"
-        FROM refresh_tokens
-        WHERE user_id = $1
-        `,
-        [userId]
-    );
+//     const result = await db.query(
+//         `
+//         SELECT
+//             id,
+//             user_id AS "userId",
+//             token_hash AS "tokenHash",
+//             expires_at AS "expiresAt",
+//             created_at AS "createdAt"
+//         FROM refresh_tokens
+//         WHERE user_id = $1
+//         `,
+//         [userId]
+//     );
 
-    return result.rows;
-}
+//     return result.rows;
+// }

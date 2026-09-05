@@ -4,7 +4,8 @@ import { createUser, getUserByEmail } from "../storage/user.repository.js";
 import bcrypt from "bcrypt"
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "./token.service.js";
 import { REFRESH_TOKEN_EXPIRES_IN_MS } from "../config/auth.config.js";
-import { createRefreshToken, getRefreshTokenByToken, getRefreshTokensByUserId } from "../storage/refreshToken.repository.js";
+import { createRefreshToken, getRefreshTokenByTokenHash, } from "../storage/refreshToken.repository.js";
+import { hashToken } from "../utils/tokenHash.js";
 
 export async function registerUser(email:string, password: string){
     const existingUser = await getUserByEmail(email)
@@ -39,10 +40,7 @@ export async function loginUser(email: string, password: string){
 
     const accessToken = generateAccessToken(user.id)
     const refreshToken = generateRefreshToken(user.id)
-    const refreshTokenHash = await bcrypt.hash(
-        refreshToken,
-        12
-    );
+    const refreshTokenHash = hashToken(refreshToken)
     const expiresAt = new Date(Date.now()+REFRESH_TOKEN_EXPIRES_IN_MS)
     const refreshTokenId = randomUUID();
 
@@ -61,21 +59,20 @@ export async function loginUser(email: string, password: string){
 export async function refreshAccessToken(refreshToken: string){
     const payload = verifyRefreshToken(refreshToken)
 
-    const refreshTokens = await getRefreshTokensByUserId(payload.userId)
+    const tokenHash = hashToken(refreshToken);
 
-    let storedToken = null
-
-    for (const token of refreshTokens){
-        const matches = await bcrypt.compare(refreshToken, token.tokenHash)
-
-        if (matches) {
-            storedToken = token;
-            break;
-        }
-    }
+    const storedToken = await getRefreshTokenByTokenHash(tokenHash)
 
     if (!storedToken){
         throw new Error("Refresh token is invalid")
+    }
+
+    if(storedToken.userId !== payload.userId){
+        throw new Error("Refresh tken is invalid")
+    }
+
+    if(storedToken.revokedAt){
+        throw new Error("Refresh token has been revoked")
     }
 
     if (storedToken.expiresAt < new Date()) {
