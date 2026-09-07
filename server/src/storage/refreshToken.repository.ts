@@ -46,6 +46,14 @@ export async function getRefreshTokenByTokenHash(tokenHash: string){
     return result.rows[0]
 }
 
+export async function revokeRefreshToken(id: string){
+    await db.query(`
+        UPDATE refresh_tokens
+        SET revoked_at=NOW()
+        WHERE id=$1
+        `,[id]);
+}
+
 // export async function getRefreshTokensByUserId(userId: string) {
 
 //     const result = await db.query(

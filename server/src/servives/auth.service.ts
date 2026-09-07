@@ -4,7 +4,7 @@ import { createUser, getUserByEmail } from "../storage/user.repository.js";
 import bcrypt from "bcrypt"
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "./token.service.js";
 import { REFRESH_TOKEN_EXPIRES_IN_MS } from "../config/auth.config.js";
-import { createRefreshToken, getRefreshTokenByTokenHash, } from "../storage/refreshToken.repository.js";
+import { createRefreshToken, getRefreshTokenByTokenHash, revokeRefreshToken, } from "../storage/refreshToken.repository.js";
 import { hashToken } from "../utils/tokenHash.js";
 
 export async function registerUser(email:string, password: string){
@@ -79,11 +79,22 @@ export async function refreshAccessToken(refreshToken: string){
         throw new Error("Refresh token has expired");
     }
 
+    await revokeRefreshToken(storedToken.id)
+
+    const newRefreshToken = generateRefreshToken(payload.userId)
+
+    const expiresAt = new Date(Date.now()+REFRESH_TOKEN_EXPIRES_IN_MS)
+
+    const newRefreshTokenId = randomUUID();
+
+    await createRefreshToken(newRefreshTokenId, payload.userId, newRefreshToken, expiresAt)
 
     const accessToken = generateAccessToken(payload.userId)
 
+
     return {
-        accessToken
+        accessToken,
+        refreshToken: newRefreshToken
     }
 
 
