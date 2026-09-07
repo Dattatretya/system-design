@@ -6,6 +6,7 @@ import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from ".
 import { REFRESH_TOKEN_EXPIRES_IN_MS } from "../config/auth.config.js";
 import { createRefreshToken, getRefreshTokenByTokenHash, revokeRefreshToken, } from "../storage/refreshToken.repository.js";
 import { hashToken } from "../utils/tokenHash.js";
+import { db } from "../config/database.config.js";
 
 export async function registerUser(email:string, password: string){
     const existingUser = await getUserByEmail(email)
@@ -61,7 +62,13 @@ export async function refreshAccessToken(refreshToken: string){
 
     const tokenHash = hashToken(refreshToken);
 
-    const storedToken = await getRefreshTokenByTokenHash(tokenHash)
+    const client = await db.connect();
+
+    try{
+
+    await client.query("BEGIN")
+
+    const storedToken = await getRefreshTokenByTokenHash(tokenHash, client)
 
     if (!storedToken){
         throw new Error("Refresh token is invalid")
@@ -79,7 +86,7 @@ export async function refreshAccessToken(refreshToken: string){
         throw new Error("Refresh token has expired");
     }
 
-    await revokeRefreshToken(storedToken.id)
+    await revokeRefreshToken(storedToken.id, client)
 
     const newRefreshToken = generateRefreshToken(payload.userId)
 
@@ -91,15 +98,27 @@ export async function refreshAccessToken(refreshToken: string){
 
     const newRefreshTokenId = randomUUID();
 
-    await createRefreshToken(newRefreshTokenId, payload.userId, newRefreshTokenHash, expiresAt)
+    await createRefreshToken(newRefreshTokenId, payload.userId, newRefreshTokenHash, expiresAt, client)
 
     const accessToken = generateAccessToken(payload.userId)
 
+    await client.query("COMMIT");
 
     return {
         accessToken,
         refreshToken: newRefreshToken
     }
 
+}catch(error){
+
+    await client.query("ROLLBACK");
+    throw error
+        
+}
+finally{
+
+    client.release()
+
+}
 
 }
