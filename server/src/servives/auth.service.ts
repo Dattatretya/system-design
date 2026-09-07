@@ -83,11 +83,15 @@ export async function refreshAccessToken(refreshToken: string){
 
     const newRefreshToken = generateRefreshToken(payload.userId)
 
+    const newRefreshTokenHash = hashToken(
+        newRefreshToken
+    );
+
     const expiresAt = new Date(Date.now()+REFRESH_TOKEN_EXPIRES_IN_MS)
 
     const newRefreshTokenId = randomUUID();
 
-    await createRefreshToken(newRefreshTokenId, payload.userId, newRefreshToken, expiresAt)
+    await createRefreshToken(newRefreshTokenId, payload.userId, newRefreshTokenHash, expiresAt)
 
     const accessToken = generateAccessToken(payload.userId)
 
