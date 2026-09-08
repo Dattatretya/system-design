@@ -1,5 +1,5 @@
 import {Request, Response}from "express"
-import { loginUser, refreshAccessToken, registerUser } from "../servives/auth.service.js";
+import { loginUser, logoutUser, refreshAccessToken, registerUser } from "../servives/auth.service.js";
 
 export async function register(req: Request, res: Response){
     const {email, password} = req.body;
@@ -115,4 +115,28 @@ export async function RefreshTokenController(req: Request, res: Response){
             error: "Invalid or expired refresh token"
         });
     }
+}
+
+export async function logout(req: Request, res: Response){
+
+    const refreshToken = req.cookies?.refreshToken;
+
+    if(refreshToken){
+        await logoutUser(refreshToken)
+    }
+
+    res.clearCookie(
+        "refreshToken",
+        {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            path: "/auth"
+        }
+    )
+
+    res.status(200).json({
+        success: true,
+        message: "Logged out successfully"
+    })
 }

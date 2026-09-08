@@ -78,3 +78,11 @@ export async function revokeRefreshToken(
         [id]
     );
 }
+
+export async function revokeRefreshTokenByHash(tokenHash: string, client: DbClient = db){
+    await client.query(`
+        UPDATE refresh_tokens
+        SET revoked_at = NOW()
+        WHERE token_hash=$1
+        `, [tokenHash]);
+}

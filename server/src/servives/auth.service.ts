@@ -4,7 +4,7 @@ import { createUser, getUserByEmail } from "../storage/user.repository.js";
 import bcrypt from "bcrypt"
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "./token.service.js";
 import { REFRESH_TOKEN_EXPIRES_IN_MS } from "../config/auth.config.js";
-import { createRefreshToken, getRefreshTokenByTokenHash, revokeRefreshToken, } from "../storage/refreshToken.repository.js";
+import { createRefreshToken, getRefreshTokenByTokenHash, revokeRefreshToken, revokeRefreshTokenByHash, } from "../storage/refreshToken.repository.js";
 import { hashToken } from "../utils/tokenHash.js";
 import { db } from "../config/database.config.js";
 
@@ -121,4 +121,10 @@ finally{
 
 }
 
+}
+
+export async function logoutUser(refreshToken: string){
+    const tokenHash = hashToken(refreshToken);
+
+    await revokeRefreshTokenByHash(tokenHash)
 }
