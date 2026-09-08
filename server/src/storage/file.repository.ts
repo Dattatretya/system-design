@@ -5,6 +5,7 @@ export async function saveFileMetaData(file: FileMetadata):Promise<void>{
     await db.query(
         `INSERT INTO files (
             id,
+            user_id,
             original_name,
             stored_name,
             mime_type,
@@ -16,6 +17,7 @@ export async function saveFileMetaData(file: FileMetadata):Promise<void>{
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8) `,
         [
             file.id,
+            file.userId,
             file.originalName,
             file.storedName,
             file.mimeType,
