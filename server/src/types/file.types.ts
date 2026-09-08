@@ -1,5 +1,6 @@
 export interface FileMetadata {
     id: string;
+    userId: string;
     originalName: string;
     storedName: string;
     mimeType: string;
