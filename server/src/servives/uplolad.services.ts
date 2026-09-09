@@ -3,12 +3,13 @@ import { saveFileMetaData, updateFileAsCompleted } from "../storage/file.reposit
 import { FileMetadata } from "../types/file.types.js";
 import { getPresignedUploadUrl, uploadToS3, verifyS3Object } from "./file.storage.service.js";
 
-export async function createFileMetadata (file: Express.Multer.File): Promise<FileMetadata>{
+export async function createFileMetadata (file: Express.Multer.File, userId: string): Promise<FileMetadata>{
     
     const objectKey = `files/${randomUUID()}-${file.originalname}`
     
     const metadata: FileMetadata = {
         id: randomUUID(),
+        userId,
         originalName: file.originalname,
         storedName: file.filename,
         mimeType: file.mimetype,
@@ -23,13 +24,14 @@ export async function createFileMetadata (file: Express.Multer.File): Promise<Fi
     return metadata
 };
 
-export async function createPresignedUploadUrl(fileName: string, contentType: string){
+export async function createPresignedUploadUrl(fileName: string, contentType: string, userId: string){
     const objectKey = `files/${randomUUID()}-${fileName}`
 
     const fileId = randomUUID()
 
     const metadata: FileMetadata = {
         id: fileId,
+        userId,
         originalName: fileName,
         storedName: fileName,
         mimeType: contentType,
