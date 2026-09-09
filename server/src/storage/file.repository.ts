@@ -29,30 +29,33 @@ export async function saveFileMetaData(file: FileMetadata):Promise<void>{
     )
 }
 
-export async function getAllFiles(): Promise<FileMetadata[]>{
+export async function getAllFiles(userId : string): Promise<FileMetadata[]>{
     const result = await db.query(`
         SELECT 
-        id,
-        original_name AS "originalName",
-        stored_name AS "storedName",
-        mime_type AS "mimeType",
-        size,
-        storage_path AS path,
-        status,
-        created_at AS "createdAt"
+            id,
+            user_id as "userId",
+            original_name AS "originalName",
+            stored_name AS "storedName",
+            mime_type AS "mimeType",
+            size,
+            storage_path AS path,
+            status,
+            created_at AS "createdAt"
         FROM files
+        WHERE user_id = $1
         ORDER BY created_at DESC
-        `);
+        `, [userId]);
 
         return result.rows;
 }
 
-export async function getFileById(id:string):Promise<FileMetadata | null>{
+export async function getFileById(id:string, userId: string):Promise<FileMetadata | null>{
    
     const result = await db.query(
         `
         SELECT 
             id,
+            user_id as "userId",
             original_name AS "originalName",
             stored_name AS "storedName",
             mime_type AS "mimeType",
@@ -61,14 +64,15 @@ export async function getFileById(id:string):Promise<FileMetadata | null>{
             status,
             created_at AS "createdAt" 
         FROM files
-        WHERE id=$1`,
-        [id]
+        WHERE id=$1
+        AND user_id = $2`,
+        [id, userId]
     );
     
     return result.rows[0] ?? null
 } 
 
-export async function updateFileAsCompleted (fileId: string,
+export async function updateFileAsCompleted (fileId: string,userId: string,
     file: {
         originalName: string;
         storedName: string;
@@ -89,8 +93,10 @@ export async function updateFileAsCompleted (fileId: string,
             storage_path = $5,
             status = $6
         WHERE id = $7
+        AND user_id = $8
         RETURNING
             id,
+            user_id as "userId",
             original_name AS "originalName",
             stored_name AS "storedName",
             mime_type AS "mimeType",
@@ -106,7 +112,8 @@ export async function updateFileAsCompleted (fileId: string,
             file.size,
             file.path,
             file.status,
-            fileId
+            fileId,
+            userId
         ]
     )
 

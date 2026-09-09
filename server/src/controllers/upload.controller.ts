@@ -15,7 +15,10 @@ export async function uploadFile(req: Request, res: Response){
 
         return
     }
-    const metadata = await createFileMetadata(req.file)
+
+    const userId = res.locals.userId;
+
+    const metadata = await createFileMetadata(req.file, userId)
 
     res.status(201).json({
         success: true,
@@ -25,7 +28,10 @@ export async function uploadFile(req: Request, res: Response){
 }
 
 export async function getFiles(_req: Request, res: Response){
-    const files = await getAllFiles()
+    
+    const userId = res.locals.userId
+    
+    const files = await getAllFiles(userId)
 
     res.status(200).json({
         success: true,
@@ -35,7 +41,9 @@ export async function getFiles(_req: Request, res: Response){
 
 export async function getFile(req: Request<{id: string}>, res: Response){
 
-    const file = await getFileById(req.params.id);
+    const userId = res.locals.userId;
+    
+    const file = await getFileById(req.params.id, userId);
 
     if(!file){
         res.status(404).json({
@@ -64,7 +72,9 @@ export async function createPresignedUpload(req: Request, res: Response){
         return
     }
 
-    const result = await createPresignedUploadUrl(fileName, contentType)
+    const userId = res.locals.userId;
+
+    const result = await createPresignedUploadUrl(fileName, contentType, userId);
 
 
     res.status(200).json({
@@ -79,7 +89,9 @@ export async function completeUploadController (req: Request, res: Response){
     const {
         objectKey,
         fileName, fileId
-    } = req.body
+    } = req.body;
+
+    const userId = res.locals.userId;
 
 
     if (!objectKey || !fileName || !fileId ){
@@ -92,7 +104,8 @@ export async function completeUploadController (req: Request, res: Response){
     const metadata = await completeUpload(
         objectKey,
         fileName,
-        fileId
+        fileId,
+        userId
     )
 
     res.status(201).json({

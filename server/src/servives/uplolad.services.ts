@@ -54,11 +54,14 @@ export async function createPresignedUploadUrl(fileName: string, contentType: st
 export async function completeUpload (
     objectKey: string,
     fileName: string,
-    fileId: string
+    fileId: string,
+    userId: string
 ){
     const s3Object = await verifyS3Object(objectKey)
 
-    const metadata = await updateFileAsCompleted(fileId,{
+    const metadata = await updateFileAsCompleted(fileId,
+        userId,
+        {
         originalName: fileName,
         storedName: objectKey,
         mimeType: s3Object.contentType || "application/octet-stream",
