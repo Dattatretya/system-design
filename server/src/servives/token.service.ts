@@ -13,8 +13,8 @@ function getRequiredEnv(name: string): string {
     return value;
 }
 
-const accessSecret = getRequiredEnv("JWT_ACCESS_SECRET");
-const refreshSecret = getRequiredEnv("JWT_REFRESH_SECRET");
+const accessSecret = process.env.JWT_ACCESS_SECRET;
+const refreshSecret = process.env.JWT_REFRESH_SECRET;
 
 export function generateAccessToken (userId: string): string {
     const payload: AccessTokenPayload = {

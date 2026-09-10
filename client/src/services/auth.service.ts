@@ -1,4 +1,4 @@
-import { BASE_URL } from "../constants/api.constant";
+import { AUTH_BASE_URL } from "../constants/api.constant";
 
 let accessToken : string | null = null;
 
@@ -15,7 +15,7 @@ export function clearAccessToken(){
 }
 
 export async function login(email: string, password: string){
-    const response = await fetch(`${BASE_URL}/auth/login`,
+    const response = await fetch(`${AUTH_BASE_URL}/login`,
         {
             method: "POST",
             headers:{
@@ -41,12 +41,14 @@ export async function login(email: string, password: string){
 }
 
 export async function refreshAccessToken(){
-    const response = await fetch(`${BASE_URL}/auth/refresh`,{
+    const response = await fetch(`${AUTH_BASE_URL}/refresh`,{
         method: "POST",
         credentials: "include"
     });
 
     if(!response.ok){
+        clearAccessToken();
+
         throw new Error(`Failed to refresh access token ${response.status}`)
     }
 
@@ -55,4 +57,18 @@ export async function refreshAccessToken(){
     setAccessToken(data.accessToken);
 
     return data.accessToken;
+}
+
+export async function logout (){
+    try{
+        await fetch(`${AUTH_BASE_URL}/logout`,
+            {
+                method: "POST",
+                credentials: "include"
+            }
+        );
+    }
+    finally{
+        clearAccessToken();
+    }
 }
