@@ -17,7 +17,7 @@ export function AuthProvider ({children}: AuthProviderProps){
     const [accessToken, setAccessTokenState] = useState<string | null> (null);
 
     function setAccessToken(token: string){
-        setAccessTokenState(null)
+        setAccessTokenState(token)
     }
 
     function logout(){

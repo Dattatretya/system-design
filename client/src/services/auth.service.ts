@@ -42,7 +42,7 @@ export async function login(email: string, password: string){
 
 export async function register(email: string, password: string){
 
-    const response = await fetch(`${BASE_URL}/register`, {
+    const response = await fetch(`${AUTH_BASE_URL}/register`, {
         method: "POST",
         headers:{
             "Content-Type": "application/json"

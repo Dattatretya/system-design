@@ -22,7 +22,11 @@ function LoginPage(){
 
         }
         catch(error){
-            setError(error)
+            if (error instanceof Error) {
+                setError(error.message);
+            } else {
+                setError("Login failed");
+            }
         }
     }
 
