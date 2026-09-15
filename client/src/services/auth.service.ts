@@ -1,4 +1,4 @@
-import { AUTH_BASE_URL } from "../constants/api.constant";
+import { AUTH_BASE_URL, BASE_URL } from "../constants/api.constant";
 
 let accessToken : string | null = null;
 
@@ -38,6 +38,29 @@ export async function login(email: string, password: string){
     setAccessToken(data.data.accessToken);
 
     return data.data
+}
+
+export async function register(email: string, password: string){
+
+    const response = await fetch(`${BASE_URL}/register`, {
+        method: "POST",
+        headers:{
+            "Content-Type": "application/json"
+        },
+        credentials: "include",
+        body: JSON.stringify({
+            email,
+            password
+        })
+    })
+
+    const data = await response.json();
+
+    if (!response.ok){
+        throw new Error (data.error || `Registration failed ${response.status}`)
+    }
+
+    return data;
 }
 
 export async function refreshAccessToken(){

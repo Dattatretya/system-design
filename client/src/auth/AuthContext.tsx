@@ -4,6 +4,7 @@ interface AuthContextValue {
     accessToken: string | null;
     isAuthenticated: boolean;
     setAccessToken: (token: string | null) => void
+    logout: ()=> void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -13,14 +14,26 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider ({children}: AuthProviderProps){
-    const [accessToken, setAccessToken] = useState<string | null> (null);
+    const [accessToken, setAccessTokenState] = useState<string | null> (null);
+
+    function setAccessToken(token: string){
+        setAccessTokenState(null)
+    }
+
+    function logout(){
+        setAccessTokenState(null);
+    }
+
+    const isAuthenticated = accessToken !== null;
+
 
     return (
         <AuthContext.Provider
         value={{
             accessToken,
-            isAuthenticated: accessToken !== null,
-            setAccessToken
+            isAuthenticated,
+            setAccessToken,
+            logout
         }}
         >
             {children}
