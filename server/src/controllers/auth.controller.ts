@@ -72,6 +72,7 @@ export async function login(req: Request, res: Response){
 
     }
     catch(error){
+        console.log(error)
         res.status(401).json({
             success: false,
             error: "Invalid email or password"

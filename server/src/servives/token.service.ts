@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken"
 import { AccessTokenPayload, RefreshTokenPayload } from "../types/auth.types.js";
 import { ACCESS_TOKEN_EXPIRES_IN, REFRESH_TOKEN_EXPIRES_IN } from "../config/auth.config.js";
-
+import dotenv from "dotenv"
+dotenv.config()
 
 function getRequiredEnv(name: string): string {
     const value = process.env[name];
@@ -13,14 +14,18 @@ function getRequiredEnv(name: string): string {
     return value;
 }
 
-const accessSecret = process.env.JWT_ACCESS_SECRET;
-const refreshSecret = process.env.JWT_REFRESH_SECRET;
+const accessSecret = getRequiredEnv(`JWT_ACCESS_SECRET`);
+const refreshSecret = getRequiredEnv("JWT_REFRESH_SECRET");
+
+if(!accessSecret || !refreshSecret){
+    throw new Error ("JWT secrets are not configured")
+}
 
 export function generateAccessToken (userId: string): string {
     const payload: AccessTokenPayload = {
         userId
     }
-     return jwt.sign(payload, accessSecret, {
+     return jwt.sign(payload, process.env.JWT_ACCESS_SECRET || "abugfsy", {
         expiresIn: ACCESS_TOKEN_EXPIRES_IN
      })
 }
