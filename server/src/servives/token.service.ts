@@ -14,7 +14,7 @@ function getRequiredEnv(name: string): string {
     return value;
 }
 
-const accessSecret = getRequiredEnv(`JWT_ACCESS_SECRET`);
+const accessSecret = getRequiredEnv("JWT_ACCESS_SECRET");
 const refreshSecret = getRequiredEnv("JWT_REFRESH_SECRET");
 
 if(!accessSecret || !refreshSecret){
@@ -25,7 +25,7 @@ export function generateAccessToken (userId: string): string {
     const payload: AccessTokenPayload = {
         userId
     }
-     return jwt.sign(payload, process.env.JWT_ACCESS_SECRET || "abugfsy", {
+     return jwt.sign(payload, accessSecret, {
         expiresIn: ACCESS_TOKEN_EXPIRES_IN
      })
 }
